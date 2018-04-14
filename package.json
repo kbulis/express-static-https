@@ -1,0 +1,32 @@
+{
+  "name": "express-static-https",
+  "version": "0.0.10",
+  "description": "Simple static express web server for the command line.",
+  "main": "./build/index.js",
+  "bin": {
+    "express-static-https": "./bin/cli.js"
+  },
+  "types": "./build/index.d.ts",
+  "repository": "https://github.com/kbulis/express-static-https.git",
+  "author": "kirk.d.bulis@gmail.com",
+  "keywords": [
+    "express",
+    "static",
+    "ssl"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo Nothing to test at this time..."
+  },
+  "devDependencies": {
+    "@types/express": "^4.11.1",
+    "@types/node": "^9.6.5",
+    "@types/yargs": "^11.0.0",
+    "typescript": "^2.7.2"
+  },
+  "dependencies": {
+    "express": "^4.16.2",
+    "yargs": "^11.0.0"
+  }
+}
