@@ -1,13 +1,15 @@
 import * as express from 'express';
 import * as parsing from 'yargs';
 import * as https from 'https';
+import * as http from 'http';
 import * as path from 'path';
 import * as fs from 'fs';
 
 const app: express.Express = express();
 const arg: any = parsing
-  .usage('Usage: $0 --path [path/to/files] --port [listening on] --certificate [path/to/fullchain.pem] --key [path/to/privatekey.pem] --missing [path/to/missing.html]')
+  .usage('Usage: $0 --path [path/to/files] --port [listening on] --http [redirect from] --certificate [path/to/fullchain.pem] --key [path/to/privatekey.pem] --missing [path/to/missing.html]')
   .default('port', 5000)
+  .default('http', 8080)
   .default('path', './')
   .demandOption([
     'certificate',
@@ -50,6 +52,9 @@ try {
 catch (eX) {
 }
 
+console.log(`. listening for requests of ${arg.path} on port ${arg.port}`);
+console.log(`. using ${arg.certificate} and ${arg.key}`);
+
 if (fs.existsSync(arg.certificate) === true && fs.existsSync(arg.key) === true) {
   https.createServer({ cert: fs.readFileSync(arg.certificate, 'utf8'), key: fs.readFileSync(arg.key, 'utf8') }, app).listen(arg.port);
 }
@@ -58,9 +63,26 @@ else {
   process.exit(1);
 }
 
-console.log(`. listening for requests of ${arg.path} on port ${arg.port}`);
-console.log(`. using ${arg.certificate} and ${arg.key}`);
 console.log(`. https enabled`);
+
+if (arg.http) {
+  console.log(`. starting http for redirect on port ${arg.http}`);
+  
+  http.createServer((req: http.IncomingMessage, res: http.ServerResponse) => {
+    console.log('~ redirecting to ' + 'https://' + (req.headers.host || '').replace(':' + arg.http, '') + ':' + arg.port + req.url);
+
+    res.writeHead(302, {
+      location: 'https://' + (req.headers.host || '').replace(':' + arg.http, '') + ':' + arg.port + req.url,
+    });
+
+    res.end();
+  }).listen(arg.http);
+
+  console.log(`. http enabled`);
+}
+else {
+  console.log(`. http disabled`);
+}
 
 export {
   app,
